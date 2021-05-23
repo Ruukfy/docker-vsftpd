@@ -1,7 +1,6 @@
 # hydrohs/vsftpd
 [![Docker Pulls](https://img.shields.io/docker/pulls/hydrohs/vsftpd.svg?style=plastic)](https://hub.docker.com/r/hydrohs/vsftpd/)
-[![Docker Build Status](https://img.shields.io/docker/build/fauria/vsftpd.svg?style=plastic)](https://hub.docker.com/r/hydrohs/vsftpd/builds/)
-[![](https://images.microbadger.com/badges/image/hydrohs/vsftpd.svg)](https://microbadger.com/images/hydrohs/vsftpd "hydrohs/vsftpd")
+[![Docker Build Status](https://img.shields.io/docker/build/hydrohs/vsftpd.svg?style=plastic)](https://hub.docker.com/r/hydrohs/vsftpd/builds/)
 
 This Docker container implements a vsftpd server, with the following features:
 
@@ -11,7 +10,7 @@ This Docker container implements a vsftpd server, with the following features:
  * Passive mode
  * Logging to a file or STDOUT.
 
-### Installation from [Docker registry hub](https://registry.hub.docker.com/r/fauria/vsftpd/).
+### Installation from [Docker registry hub](https://registry.hub.docker.com/r/hydrohs/vsftpd/).
 
 You can download the image with the following command:
 
