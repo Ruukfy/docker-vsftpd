@@ -2,6 +2,8 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/hydrohs/vsftpd.svg?style=plastic)](https://hub.docker.com/r/hydrohs/vsftpd/)
 [![Docker Build Status](https://img.shields.io/docker/build/hydrohs/vsftpd.svg?style=plastic)](https://hub.docker.com/r/hydrohs/vsftpd/builds/)
 
+This fork builds with container user as UID/GID 1000.
+
 This Docker container implements a vsftpd server, with the following features:
 
  * Centos 7 base image.
@@ -15,7 +17,7 @@ This Docker container implements a vsftpd server, with the following features:
 You can download the image with the following command:
 
 ```bash
-docker pull fauria/vsftpd
+docker pull hydrohs/vsftpd
 ```
 
 Environment variables
