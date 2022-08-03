@@ -2,13 +2,27 @@ version: "3"
 
 services:
   vsftpd:
-    image: hydrohs/vsftpd
+    #image: XXXX -- change to image whenever built.
+    build:
+      context: .
     restart: unless-stopped
     ports:
       - "20:20"
       - "21:21"
-      - "21100-21110:21100-21110"
+      - "21000-21010:21000-21010"
     volumes:
       - ./home:/home/vsftpd
       - ./logs:/var/log/vsftpd
       - ./cert:/etc/vsftpd/cert
+      - vsftpd:/etc/vsftpd
+    environment:
+      - FTP_USER=${FTP_DEFAULT_USER:-ftpuser}
+      - FTP_PASS=${FTP_DEFAULT_PASS:-ftpuser}
+      - PASV_MIN_PORT=21000
+      - PASV_MAX_PORT=21010
+      - SSL_ENABLE=YES
+      - TLS_CERT=fullchain.pem
+      - TLS_KEY=privkey.pem
+
+volumes:
+  vsftpd:
