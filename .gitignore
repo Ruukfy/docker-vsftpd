@@ -1,5 +1,5 @@
 .idea
-home/*
+ftp/*
 etc/logs/*.*
 etc/cert/*.*
-etc/users/conf/*
+etc/users/*.*

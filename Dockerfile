@@ -1,4 +1,4 @@
-FROM alpine:3.15 as pam_builder
+FROM alpine:latest as pam_builder
 
 RUN set -xe \
     && apk add -U build-base \
@@ -26,25 +26,26 @@ RUN set -xe \
                sqlite-dev \
                tar
 
-FROM alpine:3.15
+FROM alpine:latest
 
-ARG USER_ID=1000
-ARG GROUP_ID=1000
+LABEL Maintainer="" \
+      Description="vsftpd Docker image based on Alpine. Supports passive mode and virtual users." \
+      License="MIT License" \
+      Version="3.0.3"
 
+# if you want use APK mirror then uncomment, modify the mirror address to which you favor
+# RUN sed -i 's|http://dl-cdn.alpinelinux.org|https://mirrors.aliyun.com|g' /etc/apk/repositories
 
-LABEL Description="vsftpd Docker image based on Alpine. Supports passive mode, SSL and virtual users." \
-	License="Apache License 2.0" \
-	Usage="docker run -d -p [HOST PORT NUMBER]:21 -v [HOST FTP HOME]:/home/vsftpd whatever/vsftpd" \
-	Version="1.0"
+ENV TZ=Europe/Madrid
+RUN set -ex \
+    && apk add --no-cache ca-certificates curl tzdata unzip vsftpd openssl pam-pgsql \
+    && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
+    && echo $TZ > /etc/timezone \
+    && rm -rf /tmp/* /var/cache/apk/*
 
 COPY --from=pam_builder /lib/security/pam_pwdfile.so /lib/security/
 COPY --from=pam_builder /lib/security/pam_sqlite3.so /lib/security/
 
-RUN apk update && apk upgrade && \
-    apk --update add --no-cache vsftpd openssl iproute2 linux-pam db-utils pam-pgsql postgresql-client sqlite nano && \
-    rm -f /var/cache/apk/*
-
-RUN addgroup -S -g ${USER_ID} vsftpd && adduser -S -u ${GROUP_ID} -G vsftpd vsftpd
 
 ENV FTP_USER **String**
 ENV FTP_PASS **Random**
@@ -64,28 +65,30 @@ ENV SSL_ENABLE NO
 ENV TLS_CERT cert.pem
 ENV TLS_KEY key.pem
 
+COPY ./etc/vsftpd.conf /etc/vsftpd/
+COPY ./etc/vsftpd.sh /usr/sbin/
+COPY etc/vsftpd_manager.sh /usr/sbin/
+COPY ./etc/pam/vsftpd_virtual /etc/pam.d/
 
-COPY etc/vsftpd.conf /etc/vsftpd/
-COPY etc/users/ /etc/vsftpd/users/
-COPY etc/pam/vsftpd_virtual /etc/pam.d/
-COPY etc/vsftpd.sh /usr/sbin/
-COPY etc/pam/*.conf /etc/
-COPY etc/vsftpd_manager.sh /usr/sbin
-
-RUN mkdir -p /etc/vsftpd/users/conf/
-
-RUN chmod +x /usr/sbin/vsftpd.sh && \
-    chmod +x /usr/sbin/vsftpd_manager.sh && \
-    mkdir -p /home/vsftpd/ && \
-    chown -R vsftpd:vsftpd /home/vsftpd/
+RUN set -ex \
+    && chmod +x /usr/sbin/vsftpd.sh \
+    && chmod +x /usr/sbin/vsftpd_manager.sh \
+    && mkdir -p /var/log/vsftpd/ \
+    && mkdir -p /etc/vsftpd/users/conf/ \
+    && mkdir -p /var/mail/
 
 
-VOLUME /home/vsftpd
+RUN delgroup ping &&  \
+    addgroup -S -g 999 vsftpd && \
+    adduser -S -u 999 -G vsftpd vsftpd && \
+    addgroup -S -g 1000 virtual && \
+    adduser -S -u 1000 -G virtual virtual && \
+    mkdir -p /home/ftp/ && \
+    chown -R virtual:virtual /home/ftp/
+
+VOLUME /home/ftp
 VOLUME /var/log/vsftpd
-VOLUME /etc/vsftpd/cert
-VOLUME /etc/vsftpd/users
 
-EXPOSE 20 21 21000-21010
-
-CMD ["/usr/sbin/vsftpd.sh"]
+EXPOSE 20 21 21100-21110
 #ENTRYPOINT ["/bin/sh","-c","sleep infinity"]
+CMD ["/usr/sbin/vsftpd.sh"]

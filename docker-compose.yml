@@ -6,22 +6,22 @@ services:
     build:
       context: .
     #restart: unless-stopped
-    ports:
-      - "20:20"
-      - "21:21"
-      - "21000-21010:21000-21010"
+    network_mode: host
+#    ports:
+#      - "20:20"
+#      - "21:21"
+#      - "21000-21010:21000-21010"
     volumes:
-      - ./ftp:/home/vsftpd
-      - ./etc/logs:/var/log/vsftpd
+      - ./ftp:/home/ftp
       - ./etc/cert:/etc/vsftpd/cert
       - ./etc/users/:/etc/vsftpd/users/
     environment:
-      - PAM_DSN=host=db port=5432 dbname=postgres user=postgres password=postgres connect_timeout=15
-      - PASV_MIN_PORT=21000
-      - PASV_MAX_PORT=21010
+      - FTP_USER=admin
+      - FTP_PASS=admin
+#      - PAM_DSN=host=db port=5432 dbname=postgres user=postgres password=postgres connect_timeout=15
       - SSL_ENABLE=YES
-      - TLS_CERT=fullchain.pem
-      - TLS_KEY=privkey.pem
+      - TLS_CERT=vsftpd.crt
+      - TLS_KEY=vsftpd.key
       - LOG_STDOUT=yes
     depends_on:
       - db
