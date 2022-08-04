@@ -1,4 +1,5 @@
 .idea
-home
-logs
-cert
+home/*
+etc/logs/*.*
+etc/cert/*.*
+etc/users/conf/*

@@ -5,24 +5,35 @@ services:
     #image: XXXX -- change to image whenever built.
     build:
       context: .
-    restart: unless-stopped
+    #restart: unless-stopped
     ports:
       - "20:20"
       - "21:21"
       - "21000-21010:21000-21010"
     volumes:
-      - ./home:/home/vsftpd
-      - ./logs:/var/log/vsftpd
-      - ./cert:/etc/vsftpd/cert
-      - vsftpd:/etc/vsftpd
+      - ./ftp:/home/vsftpd
+      - ./etc/logs:/var/log/vsftpd
+      - ./etc/cert:/etc/vsftpd/cert
+      - ./etc/users/:/etc/vsftpd/users/
     environment:
-      - FTP_USER=${FTP_DEFAULT_USER:-ftpuser}
-      - FTP_PASS=${FTP_DEFAULT_PASS:-ftpuser}
+      - PAM_DSN=host=db port=5432 dbname=postgres user=postgres password=postgres connect_timeout=15
       - PASV_MIN_PORT=21000
       - PASV_MAX_PORT=21010
       - SSL_ENABLE=YES
       - TLS_CERT=fullchain.pem
       - TLS_KEY=privkey.pem
-
+      - LOG_STDOUT=yes
+    depends_on:
+      - db
+  db:
+    image: postgres:12.6
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres:/var/lib/postgresql/data
 volumes:
-  vsftpd:
+  postgres:
