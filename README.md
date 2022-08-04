@@ -1,7 +1,8 @@
 This fork builds with container user as UID/GID 1000.
 
 Built after fauria/vsftpd.
-Built after {{image_name}}.
+Built after epoweripione/docker-vsftpd-alpine
+
 
 This Docker container implements a vsftpd server, with the following features:
 
@@ -135,47 +136,3 @@ This image uses environment variables to allow the configuration of some paramet
 
 ----
 
-Exposed ports and volumes
-----
-
-The image exposes ports `20` and `21`. Also, exports three volumes: `/home/vsftpd`, which contains users home directories, `/var/log/vsftpd`, used to store logs and `/etc/vsftpd/cert`, to provide SSL certificate to container.
-
-When sharing a homes directory between the host and the container (`/home/vsftpd`) the owner user id and group id should be 14 and 50 respectively. This corresponds to ftp user and ftp group on the container, but may match something else on the host.
-
-Use cases
-----
-
-1) Create a temporary container for testing purposes:
-
-```bash
-  docker run --rm {{image_name}}
-```
-
-2) Create a container in active mode using the default user account, with a binded data directory:
-
-```bash
-docker run -d -p 21:21 -v /my/data/directory:/home/vsftpd --name vsftpd {{image_name}}
-# see logs for credentials:
-docker logs vsftpd
-```
-
-3) Create a **production container** with a custom user account, SSL enabled, binding a data directory and enabling both active and passive mode:
-
-```bash
-docker run -d -v /my/data/directory:/home/vsftpd \
--p 20:20 -p 21:21 -p 21100-21110:21100-21110 \
--e FTP_USER=myuser -e FTP_PASS=mypass \
--e SSL_ENABLE=YES -e TLS_CERT=ftps_localhost.crt -e TLS_KEY=ftps_localhost.key \
--e PASV_ADDRESS=127.0.0.1 -e PASV_MIN_PORT=21100 -e PASV_MAX_PORT=21110 \
---name vsftpd --restart=always {{image_name}}
-```
-
-4) Manually add a new FTP user to an existing container:
-```bash
-docker exec -ti vsftpd bash
-mkdir /home/vsftpd/myuser && chown -R 1000:1000 /home/vsftpd/myuser
-echo -e "myuser\nmypass" >> /etc/vsftpd/virtual_users.txt
-/usr/bin/db_load -T -t hash -f /etc/vsftpd/virtual_users.txt /etc/vsftpd/virtual_users.db
-exit
-docker restart vsftpd
-```

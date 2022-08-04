@@ -6,11 +6,10 @@ services:
     build:
       context: .
     #restart: unless-stopped
-    network_mode: host
-#    ports:
-#      - "20:20"
-#      - "21:21"
-#      - "21000-21010:21000-21010"
+    ports:
+      - "20:20"
+      - "21:21"
+      - "21000-21010:21000-21010"
     volumes:
       - ./ftp:/home/ftp
       - ./etc/cert:/etc/vsftpd/cert
@@ -23,8 +22,9 @@ services:
       - TLS_CERT=vsftpd.crt
       - TLS_KEY=vsftpd.key
       - LOG_STDOUT=yes
-    depends_on:
-      - db
+
+#    depends_on:
+#      - db
   db:
     image: postgres:12.6
     environment:
