@@ -6,6 +6,7 @@ RUN set -xe \
                   linux-pam-dev \
                   bsd-compat-headers \
                   sqlite-dev \
+                  pam-pgsql \
                   tar \
     && mkdir pam_pwdfile \
         && cd pam_pwdfile \
@@ -38,13 +39,14 @@ LABEL Maintainer="" \
 
 ENV TZ=Europe/Madrid
 RUN set -ex \
-    && apk add --no-cache ca-certificates curl tzdata unzip vsftpd openssl pam-pgsql \
+    && apk add --no-cache ca-certificates curl tzdata unzip vsftpd openssl postgresql-client sqlite nano \
     && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
     && echo $TZ > /etc/timezone \
     && rm -rf /tmp/* /var/cache/apk/*
 
 COPY --from=pam_builder /lib/security/pam_pwdfile.so /lib/security/
 COPY --from=pam_builder /lib/security/pam_sqlite3.so /lib/security/
+COPY --from=pam_builder /usr/lib/security/pam_pgsql.so /lib/security/
 
 
 ENV FTP_USER **String**
@@ -68,7 +70,10 @@ ENV TLS_KEY key.pem
 COPY ./etc/vsftpd.conf /etc/vsftpd/
 COPY ./etc/vsftpd.sh /usr/sbin/
 COPY etc/vsftpd_manager.sh /usr/sbin/
+
 COPY ./etc/pam/vsftpd_virtual /etc/pam.d/
+COPY ./etc/pam/pam_pgsql.conf /etc/
+COPY ./etc/pam/pam_sqlite3.conf /etc/
 
 RUN set -ex \
     && chmod +x /usr/sbin/vsftpd.sh \

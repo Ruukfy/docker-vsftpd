@@ -1,2 +1,10 @@
 auth required pam_pwdfile.so pwdfile=/etc/vsftpd/users/virtual_users.pwdfile
 account required pam_permit.so
+
+#auth    required    pam_pgsql.so config_file=/etc/pam_pgsql.conf
+#account required pam_pgsql.so config_file=/etc/pam_pgsql.conf
+
+#auth    required    pam_sqlite3.so config_file=/etc/pam_sqlite3.conf
+#account required pam_sqlite3.so config_file=/etc/pam_sqlite3.conf
+
+
