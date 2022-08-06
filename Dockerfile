@@ -6,6 +6,7 @@ RUN set -xe \
                   linux-pam-dev \
                   bsd-compat-headers \
                   sqlite-dev \
+                  pam-pgsql \
                   tar \
     && mkdir pam_pwdfile \
         && cd pam_pwdfile \
@@ -38,13 +39,10 @@ LABEL Maintainer="" \
 
 ENV TZ=Europe/Madrid
 RUN set -ex \
-    && apk add --no-cache ca-certificates curl tzdata unzip vsftpd openssl pam-pgsql \
+    && apk add --no-cache ca-certificates curl tzdata unzip vsftpd openssl nano python3 \
     && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime \
     && echo $TZ > /etc/timezone \
     && rm -rf /tmp/* /var/cache/apk/*
-
-COPY --from=pam_builder /lib/security/pam_pwdfile.so /lib/security/
-COPY --from=pam_builder /lib/security/pam_sqlite3.so /lib/security/
 
 
 ENV FTP_USER **String**
@@ -64,27 +62,37 @@ ENV PORT_PROMISCUOUS NO
 ENV SSL_ENABLE NO
 ENV TLS_CERT cert.pem
 ENV TLS_KEY key.pem
+ENV VIRTUAL_UID 1000
+ENV VIRTUAL_GID 1000
+ENV VIRTUAL_HOME /home/ftp/
 
 COPY ./etc/vsftpd.conf /etc/vsftpd/
 COPY ./etc/vsftpd.sh /usr/sbin/
-COPY etc/vsftpd_manager.sh /usr/sbin/
-COPY ./etc/pam/vsftpd_virtual /etc/pam.d/
+COPY ./etc/vsftpd_manager.sh /usr/sbin/
+
+COPY --from=pam_builder /lib/security/pam_pwdfile.so /lib/security/
+COPY ./etc/pam/vsftpd_pwdfile /etc/pam.d/vsftpd_virtual
+
+#COPY --from=pam_builder /lib/security/pam_sqlite3.so /lib/security/
+#COPY ./etc/pam/pam_sqlite3.conf /etc/
+
+#COPY --from=pam_builder /usr/lib/security/pam_pgsql.so /lib/security/
+#COPY ./etc/pam/pam_pgsql.conf /etc/
 
 RUN set -ex \
     && chmod +x /usr/sbin/vsftpd.sh \
     && chmod +x /usr/sbin/vsftpd_manager.sh \
     && mkdir -p /var/log/vsftpd/ \
-    && mkdir -p /etc/vsftpd/users/conf/ \
-    && mkdir -p /var/mail/
+    && mkdir -p /etc/vsftpd/users/conf/
 
 
 RUN delgroup ping &&  \
     addgroup -S -g 999 vsftpd && \
     adduser -S -u 999 -G vsftpd vsftpd && \
-    addgroup -S -g 1000 virtual && \
-    adduser -S -u 1000 -G virtual virtual && \
-    mkdir -p /home/ftp/ && \
-    chown -R virtual:virtual /home/ftp/
+    addgroup -S -g ${VIRTUAL_GID} virtual && \
+    adduser -S -u ${VIRTUAL_UID} -G virtual virtual && \
+    mkdir -p ${VIRTUAL_HOME} && \
+    chown -R virtual:virtual ${VIRTUAL_HOME}
 
 VOLUME /home/ftp
 VOLUME /var/log/vsftpd

@@ -1,0 +1,2 @@
+auth    required    pam_pgsql.so config_file=/etc/pam_pgsql.conf
+account required    pam_pgsql.so config_file=/etc/pam_pgsql.conf
