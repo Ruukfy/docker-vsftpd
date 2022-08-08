@@ -1,15 +1,11 @@
-version: "3"
+version: "3.9"
 
 services:
   vsftpd:
+    container_name: ruukfy-vsftp
     #image: XXXX -- change to image whenever built.
     build:
       context: .
-    #restart: unless-stopped
-    ports:
-      - "20:20"
-      - "21:21"
-      - "21000-21010:21000-21010"
     volumes:
       - ./ftp:/home/ftp
       - ./etc/cert:/etc/vsftpd/cert
@@ -18,8 +14,74 @@ services:
     environment:
       - FTP_USER=admin
       - FTP_PASS=admin
-#      - PAM_DSN=host=db port=5432 dbname=postgres user=postgres password=postgres connect_timeout=15
       - SSL_ENABLE=YES
       - TLS_CERT=vsftpd.crt
       - TLS_KEY=vsftpd.key
       - LOG_STDOUT=yes
+    labels:
+
+      - "traefik.tcp.routers.router-ftp.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.router-ftp.entrypoints=ftp"
+      - "traefik.tcp.routers.router-ftp.service=service_ftp"
+
+      - "traefik.tcp.routers.router_ftp_p0.entrypoints=ftp-p0"
+      - "traefik.tcp.routers.router_ftp_p0.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.router_ftp_p0.service=service_ftp_p0"
+
+      - "traefik.tcp.routers.router_ftp_p1.entrypoints=ftp-p1"
+      - "traefik.tcp.routers.router_ftp_p1.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.router_ftp_p1.service=service_ftp_p1"
+
+      - "traefik.tcp.routers.router_ftp_p2.entrypoints=ftp-p2"
+      - "traefik.tcp.routers.router_ftp_p2.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.router_ftp_p2.service=service_ftp_p2"
+
+      - "traefik.tcp.routers.router_ftp_p3.entrypoints=ftp-p3"
+      - "traefik.tcp.routers.router_ftp_p3.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.router_ftp_p3.service=service_ftp_p3"
+
+      - "traefik.tcp.routers.router_ftp_p4.entrypoints=ftp-p4"
+      - "traefik.tcp.routers.router_ftp_p4.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.router_ftp_p4.service=service_ftp_p4"
+
+      - "traefik.tcp.routers.router_ftp_p5.entrypoints=ftp-p5"
+      - "traefik.tcp.routers.router_ftp_p5.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.router_ftp_p5.service=service_ftp_p5"
+
+      - "traefik.tcp.routers.router_ftp_p6.entrypoints=ftp-p6"
+      - "traefik.tcp.routers.router_ftp_p6.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.router_ftp_p6.service=service_ftp_p6"
+
+      - "traefik.tcp.routers.router_ftp_p7.entrypoints=ftp-p7"
+      - "traefik.tcp.routers.router_ftp_p7.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.router_ftp_p7.service=service_ftp_p7"
+
+      - "traefik.tcp.routers.router_ftp_p8.entrypoints=ftp-p8"
+      - "traefik.tcp.routers.router_ftp_p8.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.router_ftp_p8.service=service_ftp_p8"
+
+      - "traefik.tcp.routers.router_ftp_p9.entrypoints=ftp-p9"
+      - "traefik.tcp.routers.router_ftp_p9.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.router_ftp_p9.service=service_ftp_p9"
+
+      - "traefik.tcp.routers.router_ftp_p10.entrypoints=ftp-p10"
+      - "traefik.tcp.routers.router_ftp_p10.rule=HostSNI(`*`)"
+      - "traefik.tcp.routers.router_ftp_p10.service=service_ftp_p10"
+
+      - "traefik.tcp.services.service_ftp.loadbalancer.server.port=21"
+      - "traefik.tcp.services.service_ftp_p0.loadbalancer.server.port=21000"
+      - "traefik.tcp.services.service_ftp_p1.loadbalancer.server.port=21001"
+      - "traefik.tcp.services.service_ftp_p2.loadbalancer.server.port=21002"
+      - "traefik.tcp.services.service_ftp_p3.loadbalancer.server.port=21003"
+      - "traefik.tcp.services.service_ftp_p4.loadbalancer.server.port=21004"
+      - "traefik.tcp.services.service_ftp_p5.loadbalancer.server.port=21005"
+      - "traefik.tcp.services.service_ftp_p6.loadbalancer.server.port=21006"
+      - "traefik.tcp.services.service_ftp_p7.loadbalancer.server.port=21007"
+      - "traefik.tcp.services.service_ftp_p8.loadbalancer.server.port=21008"
+      - "traefik.tcp.services.service_ftp_p9.loadbalancer.server.port=21009"
+      - "traefik.tcp.services.service_ftp_p10.loadbalancer.server.port=21010"
+
+networks:
+  default:
+    name: traefik
+    external: true
