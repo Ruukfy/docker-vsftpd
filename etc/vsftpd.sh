@@ -25,7 +25,7 @@ echo "pasv_addr_resolve=${PASV_ADDR_RESOLVE}" >> /etc/vsftpd/vsftpd.conf
 echo "pasv_enable=${PASV_ENABLE}" >> /etc/vsftpd/vsftpd.conf
 echo "file_open_mode=${FILE_OPEN_MODE}" >> /etc/vsftpd/vsftpd.conf
 echo "local_umask=${LOCAL_UMASK}" >> /etc/vsftpd/vsftpd.conf
-echo "xferlog_std_format=${XFERLOG_STD_FORMAT}" >> /etc/vsftpd/vsftpd.conf
+#echo "xferlog_std_format=${XFERLOG_STD_FORMAT}" >> /etc/vsftpd/vsftpd.conf
 #echo "reverse_lookup_enable=${REVERSE_LOOKUP_ENABLE}" >> /etc/vsftpd/vsftpd.conf
 echo "pasv_promiscuous=${PASV_PROMISCUOUS}" >> /etc/vsftpd/vsftpd.conf
 echo "port_promiscuous=${PORT_PROMISCUOUS}" >> /etc/vsftpd/vsftpd.conf
@@ -44,16 +44,13 @@ if [ "$SSL_ENABLE" = "YES" ]; then
 	echo "rsa_private_key_file=/etc/vsftpd/cert/$TLS_KEY" >> /etc/vsftpd/vsftpd.conf
 fi
 
-# Execute add ftp user script
-if [ -n "$ADD_FTP_USER_SCRIPT" ] && [ ! -s "/etc/vsftpd/virtual_users" ]; then
-  if [ -s "/etc/vsftpd/vsftpd-add-ftp-user.sh" ]; then
-    chmod +x /etc/vsftpd/vsftpd-add-ftp-user.sh
-    /etc/vsftpd/vsftpd-add-ftp-user.sh
-  fi
-fi
-
 # fix ftp home permissions
 chown -R virtual:virtual /home/ftp/
+
+echo "VSTPD start"
+mkdir -p /var/log/vsftpd
+touch /var/log/vsftpd/vsftpd.log
+tail -f /var/log/vsftpd/vsftpd.log | tee /dev/fd/1 &
 
 # Run vsftpd:
 /usr/sbin/vsftpd /etc/vsftpd/vsftpd.conf

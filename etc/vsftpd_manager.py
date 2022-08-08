@@ -1,5 +1,10 @@
 #!/usr/bin/python3
-
+"""
+    Manage user for VSFTP service
+    1. Add a user with `vsftpd_manager.py add <user> --password=<password> [--home=<home dir>]`
+    2. Update a user using `..add.. --force` Use force to override exising user
+    3. Remove user with `vsftpd_manager.py del <user> [--home=<home dir>] [--force]` Use force to drop home dir
+"""
 import argparse, crypt, sys
 import os.path
 from os.path import exists
@@ -97,7 +102,7 @@ if __name__ == '__main__':
             print("Use `%s` removed" % (args.user,))
             sys.exit(0)
     except Exception as e:
-        raise e
+        print(e)
         sys.exit(1)
 
     print("Action not defined/supported")

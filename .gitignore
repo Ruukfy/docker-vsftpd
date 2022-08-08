@@ -1,5 +1,6 @@
 .idea
 ftp/*
-etc/logs/*.*
+logs/*.*
 etc/cert/*.*
 etc/users/*.*
+etc/*.pwdfile
